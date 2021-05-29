@@ -174,12 +174,12 @@ function ShowVehicleMenu()
         if cb ~= "notCars" and not IsPedInAnyVehicle(PlayerPedId()) and not inGarage then
             local vehicleShowing = nil
             local playerPed = PlayerPedId()
-            local spawnCoords, heading = GetDisplayCoordsByGarageId(currentGarageId)
-            local markerCoords = GetSpawnMarkerCoordsByGarageId(currentGarageId)
-            local cameraCoords = GetCameraCoordsByGarageId(currentGarageId)
             local _currentGarageId = currentGarageId
+            local spawnCoords, heading = GetDisplayCoordsByGarageId(_currentGarageId)
+            local markerCoords = GetSpawnMarkerCoordsByGarageId(_currentGarageId)
+            local cameraCoords = GetCameraCoordsByGarageId(_currentGarageId)
+            local cameraSpeed = GetCameraSpeedByGarage(_currentGarageId)
             local camera = CreateCam("DEFAULT_SCRIPTED_CAMERA", false)
-
             inGarage = true
             GarageRestrictions()
 
@@ -221,7 +221,7 @@ function ShowVehicleMenu()
             SetCamCoord(camera, cameraCoords.x, cameraCoords.y, cameraCoords.z)
             SetCamActive(camera, true)
             PointCamAtEntity(camera, playerPed , 0.0, 0.0, 0.0, 1)
-            RenderScriptCams(true, true, 3000, true, false)
+            RenderScriptCams(true, true, cameraSpeed, true, false)
            
             ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'beetlegarageout', {
                 title = _U("TITLE_MY_VEHICLES"),
@@ -472,6 +472,17 @@ function GetCameraCoordsByGarageId(garageId)
         end
     end
     return vector3(0.0, 0.0, 0.0)
+end
+
+function GetCameraSpeedByGarage(garageId)
+    for k, v in pairs(Config.GarageList) do
+        if v.GarageId == garageId then
+            if v.CamSpeed ~= nil then
+                return v.CamSpeed
+            end
+        end
+    end
+    return 3000
 end
 
 -- Vehicle preloading

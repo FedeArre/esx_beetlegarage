@@ -7,6 +7,7 @@ Config = {
     ReleaseMemory = false, -- false by default, use this if you use badly optimized vehicles and dont want your users to run out of memory. Do not use with PreloadVehicles = true.
     LoadOnlyRequested = false, -- false by default, the garage will load only the model the player is requesting instead of loading all previously. Do not use with PreloadVehicles = true.
     
+    SendVehiclesToGarage = true, -- true by default, when the resource starts will send all vehicles to garage.
     GarageBlipSprite = 524,
     GarageBlipColor = 74,
 
@@ -21,6 +22,7 @@ Config.GarageList = {
         DeleteMarker = vector3(215.10, -791.68, 30.83),
         VisualizerCoords = vector4(230.36, -800.48, 29.56, 0.0),
         CamCoords = vector3(227.9077, -795.4945, 32.00),
+        CamSpeed = 3000,
         SpawnPoints = {
             vector4(216.86, -799.14, 30.79, 69.2),
             vector4(210.81, -788.58, 30.91, 250.46),
@@ -44,6 +46,7 @@ Config.GarageList = {
         DeleteMarker = vector3(1489.18, 3739.33, 33.88),
         VisualizerCoords = vector4(1513.9, 3748.28, 34.34, 300.77),
         CamCoords = vector3(1516.02, 3753.79, 35.17),
+        CamSpeed = 2000,
         SpawnPoints = {
             vector4(1511.31, 3761.76, 34.01, 196.88),
             vector4(1517.0, 3763.31, 34.03, 194.57),
@@ -62,6 +65,7 @@ Config.GarageList = {
         DeleteMarker = vector3(215.10, -791.68, 30.83), -- Where players can store the vehicles
         VisualizerCoords = vector4(230.36, -800.48, 29.56, 0.0), -- Position of the preview vehicle.
         CamCoords = vector3(227.9077, -795.4945, 32.00), -- Camera position
+        CamSpeed = 3000, -- Time between the camera transitions, in miliseconds
         SpawnPoints = { -- Vector4 for heading, all posible spawnpoints.
             vector4(0.0, 0.0, 0.0, 0.0),
             vector4(1.0, 1.0, 1.0, 1.0)

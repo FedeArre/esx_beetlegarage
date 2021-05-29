@@ -11,6 +11,20 @@ if Config.PreloadVehicles then
     end
 end
 
+-- Server restart
+AddEventHandler('onResourceStart', function(resourceName)
+    if (GetCurrentResourceName() == resourceName) then
+        if Config.SendVehiclesToGarage then
+            MySQL.Async.execute("UPDATE owned_vehicles SET owned_vehicles.stored=1 WHERE 1", {}, function(result)
+                if result == 1 then
+                    print("All vehicles were sent to garage!")
+                end
+            end)
+        end
+    end
+end)
+  
+
 -- Event to check if a vehicle is from the player.
 ESX.RegisterServerCallback("beetle_garage:validCar", function(source, cb)
     local _source = source
@@ -41,7 +55,7 @@ ESX.RegisterServerCallback("beetle_garage:saveVehicle", function(source, cb, veh
     
     local vehJson = json.encode(vehprop)
     
-    MySQL.Async.execute("UPDATE owned_vehicles SET vehicle=@vehdata, owned_vehicles.stored=1 WHERE owner=@identifier AND plate=@plate", {
+    MySQL.Async.execute("UPDATE owned_vehicles SET owned_vehicles.stored=1 WHERE owner=@identifier AND plate=@plate", {
         ['@vehdata'] = vehJson,
         ['@identifier'] = xPlayerIdentifier,
         ['@plate'] = plate
