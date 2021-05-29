@@ -350,7 +350,7 @@ end
 
 RegisterNetEvent("beetle_garage:removeSimilarVehicle")
 AddEventHandler("beetle_garage:removeSimilarVehicle", function(plate)
-    local vehs = ESX.Game.GetVehicles()
+    local vehicles = ESX.Game.GetVehicles()
     for i=1, #vehicles, 1 do
         if GetVehicleNumberPlateTextIndex(vehicles[i]) == plate then
             ESX.Game.DeleteVehicle(vehicles[i])
