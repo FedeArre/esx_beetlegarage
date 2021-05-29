@@ -137,6 +137,8 @@ function StoreVehicle()
                                         ESX.ShowNotification(_U("NOT_ENOUGH_MONEY"))
                                     end
                                 end)
+			    else
+				menu.close()
                             end
                         end, function(data, menu)
                             menu.close()
