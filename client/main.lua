@@ -137,8 +137,8 @@ function StoreVehicle()
                                         ESX.ShowNotification(_U("NOT_ENOUGH_MONEY"))
                                     end
                                 end)
-			    else
-				menu.close()
+                            else
+                                menu.close()
                             end
                         end, function(data, menu)
                             menu.close()
@@ -298,7 +298,7 @@ function ShowVehicleMenu()
                                             else
                                                 ESX.ShowNotification(_U("ERROR"))
                                             end
-                                        end)
+                                        end, veh.vehicle.plate)
                                     end
                                 else
                                     ESX.ShowNotification(_U("NOT_ENOUGH_MONEY"))
@@ -353,9 +353,24 @@ end
 RegisterNetEvent("beetle_garage:removeSimilarVehicle")
 AddEventHandler("beetle_garage:removeSimilarVehicle", function(plate)
     local vehicles = ESX.Game.GetVehicles()
+    local attempts = 0
     for i=1, #vehicles, 1 do
-        if GetVehicleNumberPlateTextIndex(vehicles[i]) == plate then
-            ESX.Game.DeleteVehicle(vehicles[i])
+        if GetVehicleNumberPlateText(vehicles[i]) == plate then
+            SetEntityAsMissionEntity(vehicles[i], true, true) -- ESX.Game.DeleteVehicle doesn't seem to work. Workaround found in esx_policejob.
+			DeleteVehicle(vehicles[i])
+
+			while DoesEntityExist(vehicles[i]) do
+				Citizen.Wait(500)
+				attempts = attempts + 1
+
+				if attempts > 15 then -- 15 attempts to delete, if not, just give up.
+					break
+				end
+
+				SetEntityAsMissionEntity(vehicles[i], true, true)
+				DeleteVehicle(vehicles[i])
+			end
+
             break
         end
     end
