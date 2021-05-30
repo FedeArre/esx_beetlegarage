@@ -84,9 +84,9 @@ ESX.RegisterServerCallback("beetle_garage:getVehicleList", function(source, cb)
                 vehicle = vehicle,
                 stored = v.stored
             })
-
-            cb(toReturn)
         end
+
+        cb(toReturn)
     end)
 end)
 
