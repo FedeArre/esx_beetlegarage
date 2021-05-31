@@ -55,7 +55,7 @@ ESX.RegisterServerCallback("beetle_garage:saveVehicle", function(source, cb, veh
     
     local vehJson = json.encode(vehprop)
     
-    MySQL.Async.execute("UPDATE owned_vehicles SET owned_vehicles.stored=1 WHERE owner=@identifier AND plate=@plate", {
+    MySQL.Async.execute("UPDATE owned_vehicles SET vehicle=@vehdata, owned_vehicles.stored=1 WHERE owner=@identifier AND plate=@plate", {
         ['@vehdata'] = vehJson,
         ['@identifier'] = xPlayerIdentifier,
         ['@plate'] = plate

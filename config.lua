@@ -11,6 +11,7 @@ Config = {
     GarageBlipSprite = 524,
     GarageBlipColor = 74,
 
+    DisableImpound = false, -- false by default, if true you can't take vehicles that are not in the garage.
     DrawDistance = 10.0
 }
 
@@ -54,10 +55,7 @@ Config.GarageList = {
             vector4(1497.38, 3760.64, 33.92, 215.57),
             vector4(1494.73, 3758.99, 33.9, 210.88)
         }
-    }
-}
-
---[[
+    } --[[,
     GarageExample = { -- Name of the garage
         GarageId = 1000, -- Has to be unique!
         BlipPos = vector3(225.9824, -793.7011, 30.08), -- The position of the blip in the map
@@ -71,4 +69,5 @@ Config.GarageList = {
             vector4(1.0, 1.0, 1.0, 1.0)
         }
     }
-]]--
+    ]]--
+}

@@ -168,6 +168,19 @@ function StoreVehicle()
     end
 end
 
+function dump(o)
+    if type(o) == 'table' then
+       local s = '{ '
+       for k,v in pairs(o) do
+          if type(k) ~= 'number' then k = '"'..k..'"' end
+          s = s .. '['..k..'] = ' .. dump(v) .. ','
+       end
+       return s .. '} '
+    else
+       return tostring(o)
+    end
+ end
+
 -- Functions to take out vehicles
 function ShowVehicleMenu()
     ESX.TriggerServerCallback('beetle_garage:getVehicleList', function(cb)
@@ -199,10 +212,17 @@ function ShowVehicleMenu()
                         value = v.vehicle.plate
                     })
                 else
-                    table.insert(vehicles, {
-                        label = _U("SHOW_VEHICLE_IMPOUNDED", GetLabelText(GetDisplayNameFromVehicleModel(v.vehicle.model))),
-                        value = v.vehicle.plate
-                    })
+                    if Config.DisableImpound then
+                        table.insert(vehicles, {
+                            label = _U("SHOW_VEHICLE_NOT_STORED", GetLabelText(GetDisplayNameFromVehicleModel(v.vehicle.model))),
+                            value = v.vehicle.plate
+                        })
+                    else
+                        table.insert(vehicles, {
+                            label = _U("SHOW_VEHICLE_IMPOUNDED", GetLabelText(GetDisplayNameFromVehicleModel(v.vehicle.model))),
+                            value = v.vehicle.plate
+                        })
+                    end
                 end
             end
 
@@ -266,51 +286,55 @@ function ShowVehicleMenu()
                         ESX.ShowNotification(_U("NO_SPAWN_POINT"))
                     end
                 else
-                    ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'beetlegarageimpound', {
-                        title = _U("TITLE_IMPOUNDED_VEHICLE"),
-                        align = 'bottom-right',
-                        elements = {
-                            {label = _U('IMPOUNDED_VEHICLE_YES', Config.ImpoundPrice), value = "yes"},
-                            {label = _U('IMPOUNDED_VEHICLE_NO'), value = "no"}
-                        }
-                    }, function(data2, menu2) -- Menu select
-                        if data2.current.value == "yes" then
-                            ESX.TriggerServerCallback("beetle_garage:payimpound", function(cb)
-                                if cb then
-                                    local foundSpawn, spawnPoint = GetAvailableVehicleSpawnPoint(_currentGarageId)
-                                    if foundSpawn then
-                                        ESX.TriggerServerCallback("beetle_garage:changeStatus", function(cb)
-                                            if cb then
-                                                menu2.close()
-                                                menu.close()
-                                                
-                                                inGarage = false
-                                                DeleteVehicle(vehicleShowing)
-                                                ClearFocus()
-                                                RenderScriptCams(false, false, 0, true, false)
-                                                DestroyCam(camera, false)
-                                                ESX.Game.SpawnVehicle(veh.vehicle.model, vector3(spawnPoint.x, spawnPoint.y, spawnPoint.z), spawnPoint.w, function(vehicle)
-                                                    ESX.Game.SetVehicleProperties(vehicle, veh.vehicle)
-                                                    SetVehRadioStation(vehicle, 'OFF')
-                                                    TaskWarpPedIntoVehicle(playerPed, vehicle, -1)
-                                                    exports["LegacyFuel"]:SetFuel(vehicle, GetVehicleFuelLevel(vehicle))
-                                                end)
-                                            else
-                                                ESX.ShowNotification(_U("ERROR"))
-                                            end
-                                        end, veh.vehicle.plate)
+                    if Config.DisableImpound then
+                        ESX.ShowNotification(_U("VEHICLE_NOT_IN_GARAGE"))
+                    else
+                        ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'beetlegarageimpound', {
+                            title = _U("TITLE_IMPOUNDED_VEHICLE"),
+                            align = 'bottom-right',
+                            elements = {
+                                {label = _U('IMPOUNDED_VEHICLE_YES', Config.ImpoundPrice), value = "yes"},
+                                {label = _U('IMPOUNDED_VEHICLE_NO'), value = "no"}
+                            }
+                        }, function(data2, menu2) -- Menu select
+                            if data2.current.value == "yes" then
+                                ESX.TriggerServerCallback("beetle_garage:payimpound", function(cb)
+                                    if cb then
+                                        local foundSpawn, spawnPoint = GetAvailableVehicleSpawnPoint(_currentGarageId)
+                                        if foundSpawn then
+                                            ESX.TriggerServerCallback("beetle_garage:changeStatus", function(cb)
+                                                if cb then
+                                                    menu2.close()
+                                                    menu.close()
+                                                    
+                                                    inGarage = false
+                                                    DeleteVehicle(vehicleShowing)
+                                                    ClearFocus()
+                                                    RenderScriptCams(false, false, 0, true, false)
+                                                    DestroyCam(camera, false)
+                                                    ESX.Game.SpawnVehicle(veh.vehicle.model, vector3(spawnPoint.x, spawnPoint.y, spawnPoint.z), spawnPoint.w, function(vehicle)
+                                                        ESX.Game.SetVehicleProperties(vehicle, veh.vehicle)
+                                                        SetVehRadioStation(vehicle, 'OFF')
+                                                        TaskWarpPedIntoVehicle(playerPed, vehicle, -1)
+                                                        exports["LegacyFuel"]:SetFuel(vehicle, GetVehicleFuelLevel(vehicle))
+                                                    end)
+                                                else
+                                                    ESX.ShowNotification(_U("ERROR"))
+                                                end
+                                            end, veh.vehicle.plate)
+                                        end
+                                    else
+                                        ESX.ShowNotification(_U("NOT_ENOUGH_MONEY"))
+                                        menu2.close()
                                     end
-                                else
-                                    ESX.ShowNotification(_U("NOT_ENOUGH_MONEY"))
-                                    menu2.close()
-                                end
-                            end)
-                        else
+                                end)
+                            else
+                                menu2.close()
+                            end
+                        end, function(data2, menu2)
                             menu2.close()
-                        end
-                    end, function(data2, menu2)
-                        menu2.close()
-                    end)
+                        end)
+                    end
                 end
             end, function(data, menu) -- Menu close
                 inGarage = false
@@ -349,16 +373,16 @@ function ShowVehicleMenu()
     end)
 end
 
-
 RegisterNetEvent("beetle_garage:removeSimilarVehicle")
 AddEventHandler("beetle_garage:removeSimilarVehicle", function(plate)
     local vehicles = ESX.Game.GetVehicles()
     local attempts = 0
+    if #plate == 7 then
+        plate = plate .. " "
+    end
+
     for i=1, #vehicles, 1 do
         if GetVehicleNumberPlateText(vehicles[i]) == plate then
-            SetEntityAsMissionEntity(vehicles[i], true, true) -- ESX.Game.DeleteVehicle doesn't seem to work. Workaround found in esx_policejob.
-			DeleteVehicle(vehicles[i])
-
 			while DoesEntityExist(vehicles[i]) do
 				Citizen.Wait(500)
 				attempts = attempts + 1
@@ -366,12 +390,9 @@ AddEventHandler("beetle_garage:removeSimilarVehicle", function(plate)
 				if attempts > 15 then -- 15 attempts to delete, if not, just give up.
 					break
 				end
-
 				SetEntityAsMissionEntity(vehicles[i], true, true)
 				DeleteVehicle(vehicles[i])
 			end
-
-            break
         end
     end
 end)
