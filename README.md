@@ -1,9 +1,9 @@
 # What is this?
 An ESX garage system with vehicle preview, easy to setup and configure.
-More info in the FiveM forums: https://forum.cfx.re/t/esx-free-esx-beetlegarage-garages-with-vehicle-preview/
+More info in the cfx.re topic: https://forum.cfx.re/t/esx-free-esx-beetlegarage-garages-with-vehicle-preview-marbella-vice-style/2993846
 
 ## Requirements
-* [ESX 1.2](https://github.com/esx-framework/es_extended/tree/legacy)
+* [ESX Legacy](https://github.com/esx-framework/es_extended/tree/legacy) (Tested with 1.1 and 1.2)
 * [esx_vehicleshop](https://github.com/esx-framework/esx_vehicleshop)
 * OneSync
 
