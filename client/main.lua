@@ -17,6 +17,7 @@ local currentGarageId = -1
 local currentCoordsToDraw = nil
 local inGarage = false -- This variable is the controller for the "conceal".
 local hashActualShown = -1
+local impoundCooldown = false
 
 -- Blip
 Citizen.CreateThread(function()
@@ -289,51 +290,58 @@ function ShowVehicleMenu()
                     if Config.DisableImpound then
                         ESX.ShowNotification(_U("VEHICLE_NOT_IN_GARAGE"))
                     else
-                        ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'beetlegarageimpound', {
-                            title = _U("TITLE_IMPOUNDED_VEHICLE"),
-                            align = 'bottom-right',
-                            elements = {
-                                {label = _U('IMPOUNDED_VEHICLE_YES', Config.ImpoundPrice), value = "yes"},
-                                {label = _U('IMPOUNDED_VEHICLE_NO'), value = "no"}
-                            }
-                        }, function(data2, menu2) -- Menu select
-                            if data2.current.value == "yes" then
-                                ESX.TriggerServerCallback("beetle_garage:payimpound", function(cb)
-                                    if cb then
-                                        local foundSpawn, spawnPoint = GetAvailableVehicleSpawnPoint(_currentGarageId)
-                                        if foundSpawn then
-                                            ESX.TriggerServerCallback("beetle_garage:changeStatus", function(cb)
-                                                if cb then
-                                                    menu2.close()
-                                                    menu.close()
-                                                    
-                                                    inGarage = false
-                                                    DeleteVehicle(vehicleShowing)
-                                                    ClearFocus()
-                                                    RenderScriptCams(false, false, 0, true, false)
-                                                    DestroyCam(camera, false)
-                                                    ESX.Game.SpawnVehicle(veh.vehicle.model, vector3(spawnPoint.x, spawnPoint.y, spawnPoint.z), spawnPoint.w, function(vehicle)
-                                                        ESX.Game.SetVehicleProperties(vehicle, veh.vehicle)
-                                                        SetVehRadioStation(vehicle, 'OFF')
-                                                        TaskWarpPedIntoVehicle(playerPed, vehicle, -1)
-                                                        exports["LegacyFuel"]:SetFuel(vehicle, GetVehicleFuelLevel(vehicle))
-                                                    end)
-                                                else
-                                                    ESX.ShowNotification(_U("ERROR"))
-                                                end
-                                            end, veh.vehicle.plate)
+                        if impoundCooldown then
+                            ESX.ShowNotification(_U("IMPOUND_COOLDOWN"))
+                        else
+                            ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'beetlegarageimpound', {
+                                title = _U("TITLE_IMPOUNDED_VEHICLE"),
+                                align = 'bottom-right',
+                                elements = {
+                                    {label = _U('IMPOUNDED_VEHICLE_YES', Config.ImpoundPrice), value = "yes"},
+                                    {label = _U('IMPOUNDED_VEHICLE_NO'), value = "no"}
+                                }
+                            }, function(data2, menu2) -- Menu select
+                                if data2.current.value == "yes" then
+                                    ESX.TriggerServerCallback("beetle_garage:payimpound", function(cb)
+                                        if cb then
+                                            local foundSpawn, spawnPoint = GetAvailableVehicleSpawnPoint(_currentGarageId)
+                                            if foundSpawn then
+                                                ESX.TriggerServerCallback("beetle_garage:changeStatus", function(cb)
+                                                    if cb then
+                                                        menu2.close()
+                                                        menu.close()
+                                                        
+                                                        inGarage = false
+                                                        DeleteVehicle(vehicleShowing)
+                                                        ClearFocus()
+                                                        RenderScriptCams(false, false, 0, true, false)
+                                                        DestroyCam(camera, false)
+                                                        ESX.Game.SpawnVehicle(veh.vehicle.model, vector3(spawnPoint.x, spawnPoint.y, spawnPoint.z), spawnPoint.w, function(vehicle)
+                                                            ESX.Game.SetVehicleProperties(vehicle, veh.vehicle)
+                                                            SetVehRadioStation(vehicle, 'OFF')
+                                                            TaskWarpPedIntoVehicle(playerPed, vehicle, -1)
+                                                            exports["LegacyFuel"]:SetFuel(vehicle, GetVehicleFuelLevel(vehicle))
+                                                        end)
+                                                        if Config.ImpoundCooldown > 0 then
+                                                            ImpoundCooldownStart()
+                                                        end
+                                                    else
+                                                        ESX.ShowNotification(_U("ERROR"))
+                                                    end
+                                                end, veh.vehicle.plate)
+                                            end
+                                        else
+                                            ESX.ShowNotification(_U("NOT_ENOUGH_MONEY"))
+                                            menu2.close()
                                         end
-                                    else
-                                        ESX.ShowNotification(_U("NOT_ENOUGH_MONEY"))
-                                        menu2.close()
-                                    end
-                                end)
-                            else
+                                    end)
+                                else
+                                    menu2.close()
+                                end
+                            end, function(data2, menu2)
                                 menu2.close()
-                            end
-                        end, function(data2, menu2)
-                            menu2.close()
-                        end)
+                            end)
+                        end
                     end
                 end
             end, function(data, menu) -- Menu close
@@ -396,6 +404,16 @@ AddEventHandler("beetle_garage:removeSimilarVehicle", function(plate)
         end
     end
 end)
+
+function ImpoundCooldownStart()
+    if Config.ImpoundCooldown > 0 then
+        Citizen.CreateThread(function()
+            impoundCooldown = true
+            Citizen.Wait(Config.ImpoundCooldown)
+            impoundCooldown = false
+        end)
+    end
+end
 
 function GarageRestrictions()
     Citizen.CreateThread(function()

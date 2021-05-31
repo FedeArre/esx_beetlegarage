@@ -12,6 +12,7 @@ Config = {
     GarageBlipColor = 74,
 
     DisableImpound = false, -- false by default, if true you can't take vehicles that are not in the garage.
+    ImpoundCooldown = 300000, -- Cooldown for the impound. 5 minutes by default. Value is in miliseconds (if you want 10 minutes for example, do 1000 * 60 * 10). Use -1 if you want to disable it.
     DrawDistance = 10.0
 }
 

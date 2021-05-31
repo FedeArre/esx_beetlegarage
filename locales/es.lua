@@ -28,7 +28,8 @@ Locales['es'] = {
 
     ['TITLE_IMPOUNDED_VEHICLE'] = "El auto fue remolcado, debes pagar para retirarlo.",
     ['IMPOUNDED_VEHICLE_YES'] = 'Pagar (<font color="green">%d$</font>)',
-    ['IMPOUNDED_VEHICLE_NO'] = "Ir atras"
+    ['IMPOUNDED_VEHICLE_NO'] = "Ir atras",
+    ['IMPOUND_COOLDOWN'] = "Todavia no puedes volver a utilizar el remolcado.",
 
     -- Mensajes exclusivos cuando el embargado (impound) esta desactivado.
     ['SHOW_VEHICLE_NOT_STORED'] = '%s - <font color="red">Fuera del garage</font>',

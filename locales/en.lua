@@ -29,7 +29,8 @@ Locales['en'] = {
     ['TITLE_IMPOUNDED_VEHICLE'] = "This vehicle is impounded, you must pay to retrieve it.",
     ['IMPOUNDED_VEHICLE_YES'] = 'Retrieve it (<font color="green">%d$</font>)',
     ['IMPOUNDED_VEHICLE_NO'] = "Go back",
-    
+    ['IMPOUND_COOLDOWN'] = "You can't use the impound again, wait a bit and try again.",
+
     -- Disabled impound messages
     ['SHOW_VEHICLE_NOT_STORED'] = '%s - <font color="red">Out of garage</font>',
     ['VEHICLE_NOT_IN_GARAGE'] = 'This vehicle is ~r~not~w~ in the garage.'
